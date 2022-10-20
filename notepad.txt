@@ -1,0 +1,215 @@
+behaviour(yellow, red, -1, 160);
+    behaviour(yellow, yellow, -1);
+    behaviour(red, red, 0.3, 80);
+    behaviour(red, yellow, -1, 50);
+    behaviour(green, white, -1);
+    behaviour(white, green, 0.5, 40);
+    behaviour(pink, pink, 4, Infinity);
+    decay(pink);
+    decay(yellow);
+    chem(yellow, red, 5, [y, y, w, g, g]);
+    chem(white, green, 5, [{
+        m: 0.5,
+        c: 'pink',
+        l: 50
+    }, {
+        m: 0.5,
+        c: 'pink',
+        l: 50
+    }]);
+    chem(pink, green, 5, [r, y]);
+
+
+
+
+
+
+
+
+
+let can = document.getElementById('main');
+let con = can.getContext('2d');
+const scale = 1;
+function draw (x, y, color) {
+    con.fillStyle = color;
+    con.fillRect((x - 3) |0, (y - 3) |0, 6, 6);
+}
+can.width = 2000;
+can.height = 2000;
+
+let pink = addParticles(0);
+let yellow = addParticles(1);
+let blue = addParticles(0);
+let green = addParticles(0);
+let red = addParticles(200);
+let white = addParticles(0);
+
+let y = {
+    m: 0.5,
+    c: 'yellow',
+    l: 100
+}
+let r = {
+    m: 0.5,
+    c: 'red',
+    l: 20000
+}
+let g = {
+    m: 0.5,
+    c: 'green',
+    l: 20000
+}
+let b = {
+    m: 0.5,
+    c: 'blue',
+    l: 20000
+}
+let w = {
+    m: 0.5,
+    c: 'white',
+    l: 20000
+}
+let p = {
+    m: 0.5,
+    c: 'pink',
+    l: 20000
+}
+
+function update () {
+    behaviour(yellow, red, -1, 160);
+    behaviour(yellow, yellow, -1);
+    behaviour(red, red, 0.3, 80);
+    behaviour(red, yellow, -1, 50);
+    behaviour(green, white, -1);
+    behaviour(white, green, 0.5, 40);
+    behaviour(pink, pink, 4, Infinity);
+    decay(pink);
+    decay(yellow);
+    chem(yellow, red, 5, [y, y, w, g, g]);
+    chem(white, green, 5, [{
+        m: 0.5,
+        c: 'pink',
+        l: 50
+    }, {
+        m: 0.5,
+        c: 'pink',
+        l: 50
+    }]);
+    chem(pink, green, 5, [r, y]);
+
+    con.clearRect(0, 0, can.width, can.height);
+    for (let i in red) {
+        draw(red[i].x, red[i].y, 'red')
+    }
+    for (let i in blue) {
+        draw(blue[i].x, blue[i].y, 'blue')
+    }
+    for (let i in white) {
+        draw(white[i].x, white[i].y, 'white')
+    }
+    for (let i in green) {
+        draw(green[i].x, green[i].y, 'green')
+    }
+    for (let i in yellow) {
+        draw(yellow[i].x, yellow[i].y, 'yellow')
+    }
+    for (let i in pink) {
+        draw(pink[i].x, pink[i].y, 'hotpink')
+    }
+    requestAnimationFrame(update);
+}
+update();
+
+function addParticles (count, mass = 0.5, life = 20000) {
+    let part = [];
+    for (let i = 0; i < count; i++) {
+        part.push({
+            x: Math.random()*can.width|0,
+            y: Math.random()*can.height|0,
+            vx: 0,
+            vy: 0,
+            m: mass,
+            l: life
+        });
+    }
+    return part;
+} 
+
+function behaviour (par1, par2, g, d = 80) {
+    if (par2.length < 1) {
+        return;
+    }
+    for (let i = 0; i < par1.length; i++) {
+        let fx = 0;
+        let fy = 0;
+        let a = null;
+        let b = null;
+        for (let j=0; j < par2.length; j++) {
+            a = par1[i];
+            b = par2[j];
+            let distancex = a.x-b.x;
+            let distancey = a.y-b.y;
+            if (Math.abs(distancex) < d || Math.abs(distancey) < d) {
+                let distance = Math.sqrt(distancex*distancex + distancey*distancey);
+                if (distance > 0 && distance < d) {
+                    let force = g * (a.m+b.m)/distance;
+                    fx += force*distancex;
+                    fy += force*distancey;
+                }
+            }
+            
+        }
+        a.vx = (a.vx + fx)*0.5;
+        a.vy = (a.vy + fy)*0.5;
+        a.x += a.vx;
+        a.y += a.vy;
+        if (a.x <= 0) {
+            a.vx *= -1;
+            a.x = 0;
+        } else if (a.x >= can.width) {
+            a.vx *= -1;
+            a.x = can.width;
+        }
+        if (a.y <= 0) {
+            a.vy *= -1;
+            a.y = 0;
+        } else if (a.y >= can.height) {
+            a.vy *= -1;
+            a.y = can.height;
+        }
+    }
+}
+
+function chem (par1, par2, d = 5, result = null) {
+    for (let i in par1) {
+        let a = par1[i];
+        for (let j in par2) {
+            let b = par2[j];
+            let distancex = a.x-b.x;
+            let distancey = a.y-b.y;
+            if (Math.abs(distancex) < d || Math.abs(distancey) < d) {
+                let distance = Math.sqrt(distancex*distancex + distancey*distancey);
+                if (distance > 0 && distance < d) {
+                    console.log()
+                    if (result != null) {
+                        for (let k = 0; k < result.length; k++) {
+                            eval(result[k].c + '.push({x: a.x,y: a.y,vx: -0.01, vy: 0,m: ' + result[k].m + ',l:' + result[k].l + '})')
+                        }
+                    }
+                    par1.splice(i, 1);
+                    par2.splice(j, 1);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+function decay (par) {
+    for(let i in par) {
+        par[i].l--;
+        if (par[i].l <= 0) {
+            par.splice(i, 1);
+        }
+    }
+}

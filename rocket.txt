@@ -1,13 +1,6 @@
 let can = document.getElementById('main');
 let con = can.getContext('2d');
 const scale = 1;
-const node = '<div class="box" id="select" onclick="selectPart(this)"><p class="particlename">red</p><div class="particledisplay"></div></div>';
-const addButton = document.querySelector('.addNewParticle');
-const elems = document.getElementsByClassName('box');
-const input = document.getElementById('lawsection');
-let paused = false;
-let stopped = true;
-let selectedParticle = 0;
 function draw (x, y, color) {
     con.fillStyle = color;
     con.fillRect((x - 3) |0, (y - 3) |0, 6, 6);
@@ -15,7 +8,6 @@ function draw (x, y, color) {
 can.width = 2000;
 can.height = 2000;
 
-let particlesEditing = [];
 let particles = [
     {
         group: addParticles(1),
@@ -48,65 +40,34 @@ class Result {
 }
 
 function update () {
-    if (!paused) {
-        behaviour('black', 'black', -1, Infinity);
-        behaviour('red', 'red', -1.2, Infinity);
-        behaviour('red', 'black', -6, Infinity);
-        behaviour('blue', 'black', 5, Infinity);
-        behaviour('black', 'red', 2, 160);
-        behaviour('blue', 'blue', -1, Infinity);
-        behaviour('blue', 'black', -0.5, 160);
-        behaviour('black', 'blue', 2, 160);
-        behaviour('red', 'blue', 1);
-        behaviour('moon', 'black', -60, Infinity);
-        behaviour('moon', 'moon', 1, 20);
-        chem('red', 'red', 2, [new Result('blue', 0.5, 10), new Result('blue', 0.5, 10), new Result('red', 0.5, Infinity), new Result('red', 0.5, Infinity)]);
-        decay('blue');
-    }
+    behaviour('black', 'black', -1, Infinity);
+    behaviour('red', 'red', -1.2, Infinity);
+    behaviour('red', 'black', -6, Infinity);
+    behaviour('blue', 'black', 5, Infinity);
+    behaviour('black', 'red', 2, 160);
+    behaviour('blue', 'blue', -1, Infinity);
+    behaviour('blue', 'black', -0.5, 160);
+    behaviour('black', 'blue', 2, 160);
+    behaviour('red', 'blue', 1);
+    behaviour('moon', 'black', -60, Infinity);
+    behaviour('moon', 'moon', 1, 20);
+    chem('red', 'red', 2, [new Result('blue', 0.5, 10), new Result('blue', 0.5, 10), new Result('red', 0.5, Infinity), new Result('red', 0.5, Infinity)]);
+    decay('blue');
+    decay('r');
+    decay('g');
+
+
+
     con.clearRect(0, 0, can.width, can.height);
     for (let i in particles) {
         for (let j in particles[i].group) {
             draw(particles[i].group[j].x, particles[i].group[j].y, particles[i].color);
         }
     }
-    if (!stopped) {
-        requestAnimationFrame(update);
-    } else {
-        con.clearRect(0, 0, can.width, can.height);
-        particles = [];
-    }
+    requestAnimationFrame(update);
 }
-htmlUpdate();
-function htmlUpdate () {
-    if (elems.length > particlesEditing.length) {
-        for (let i = particlesEditing.length; i < elems.length; i++) {
-            elems[i].parentNode.removeChild(elems[i]);
-        }
-    } else if (elems.length < particlesEditing.length) {
-        for (let i = elems.length; i < particlesEditing.length; i++) {
-            addButton.insertAdjacentHTML('beforebegin', node);
-        }
-    }
-    for (let i = 0; i < elems.length; i++) {
-        elems[i].childNodes[0].innerHTML = particlesEditing[i].name;
-        elems[i].childNodes[1].style.background = particlesEditing[i].color;
-    } 
-    requestAnimationFrame(htmlUpdate)
-}
-start();
-function start () {
-    stopped = false;
-    update();
-}
-function pause () {
-    paused = !paused;
-}
-function stop () {
-    stopped = true;
-}
-function saveSettings() {
-    console.log('save!');
-}
+update();
+
 function addParticles (count, mass = 0.5, life = 20000) {
     let part = [];
     for (let i = 0; i < count; i++) {
@@ -216,36 +177,4 @@ function getList (name) {
             return particles[i].group;
         }
     }
-}
-
-
-
-//html handle
-
-function selectPart (e) {
-    let allElements = document.getElementsByClassName('box');
-    for (let i = 0; i < allElements.length; i++) {
-        if (allElements[i] == e) {
-            selectedParticle = i;
-            switchTo(selectedParticle)
-            allElements[i].style.background = 'green';
-        } else {
-            allElements[i].style.background = 'lightgray';
-        }
-    }
-}
-function switchTo (sel) {
-    document.getElementById('name').value = particlesEditing[sel].name;
-    document.getElementById('color').value = particlesEditing[sel].color;
-    document.getElementById('numberofParticle').value = particlesEditing[sel].group.length;
-}
-function addpartbutton() {
-    particlesEditing.push({
-        group: addParticles(100),
-        name:'NewParticle#' + particlesEditing.length,
-        color:'#FFFFFF',
-        mass: 0.5,
-        halflife: 1000,
-        doesdecay: false
-    });
 }
